@@ -6,9 +6,7 @@ import ab2.impl.GUNDACKER_KOPALI.RSA;
 import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class NFAImpl implements NFA {
 
@@ -21,12 +19,13 @@ public class NFAImpl implements NFA {
     //Constructor
     public NFAImpl(int numStates, Set<Character> characters, Set<Integer> acceptingStates, int initialState){
         this.characters = characters;           //Set characters of NFAImpl
+        states = new HashSet<Integer>();
         for(int i = 0; i < numStates; i++) {    //Create states of NFAImpl
             this.states.add(i);
         }
-
         this.acceptingStates = acceptingStates; //Set accepting states of NFAImpl
         this.initialState = initialState;       //Set initial state of NFAImpl
+        this.transitionList = new ArrayList<>();
     }
 
     public Set<Character> getSymbols(){
@@ -57,6 +56,18 @@ public class NFAImpl implements NFA {
 
     @Override
     public Set<String>[][] getTransitions() {
+        Set<String>[][] transSet = new Set[][];
+        Set<String> testSet = new HashSet<>();
+        testSet.add(Integer.toString(transitionList.get(0).getFromState()));
+        testSet.add(Integer.toString(transitionList.get(1).getFromState()));
+
+
+        transSet[0][0] = testSet;
+
+        System.out.println(Integer.toString(transitionList.get(0).getFromState()));
+
+
+
         throw new java.lang.UnsupportedOperationException("Not implemented yet.");
     }
 
