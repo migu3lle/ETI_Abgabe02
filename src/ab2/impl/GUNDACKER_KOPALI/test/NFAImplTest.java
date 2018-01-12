@@ -16,7 +16,8 @@ public class NFAImplTest {
         characters.add('a');
         characters.add('b');
         characters.add('c');
-
+        //Test comment
+        characters.add('D');
 
         NFAImpl nfa = new NFAImpl(3, characters, acceptingStates, initialState);
         System.out.println(nfa.getSymbols());
