@@ -1,5 +1,6 @@
 package ab2.impl.GUNDACKER_KOPALI.test;
 
+import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
 import ab2.impl.GUNDACKER_KOPALI.impl.NFAImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,18 +48,72 @@ public class NFAImplTest {
         nfa.setTransition(2,"c",0);
 
         Set<String>[][] returnSet = nfa.getTransitions();
-        /*
-        Object[] objArray;
-        for (int i = 0; i < returnSet.length; i++) {
-            for (int j = 0; j < returnSet[i].length; j++) {
-                objArray = returnSet[i][j].toArray();
-                for (int k = 0; k < objArray.length; k++) {
-                    System.out.println(objArray[k]);
-                }
-            }
-        }
-        */
+
         System.out.println("Test: " + returnSet[1][2].toString());
-        //System.out.println(returnSet[1][0].toString());
+    }
+
+    @Test
+    public void testGetNextStates(){
+        Set<Integer> expReturnStates = new HashSet<>();
+        acceptingStates.add(2);
+        int initialState = 1;
+        characters.add('a');
+        characters.add('b');
+        characters.add('c');
+        characters.add('d');
+        NFAImpl nfa = new NFAImpl(3, characters, acceptingStates, initialState);
+        nfa.setTransition(0,"a",1);
+        nfa.setTransition(1,"b",0);
+        nfa.setTransition(0,"b",1);
+        nfa.setTransition(0,"c",1);
+        nfa.setTransition(0,"d",1);
+        nfa.setTransition(0,"b",2);
+        nfa.setTransition(1,"d",2);
+        nfa.setTransition(1,"a",2);
+        nfa.setTransition(2,"b",0);
+        nfa.setTransition(2,"c",0);
+
+        expReturnStates.add(1);
+        expReturnStates.add(2);
+
+        Assert.assertEquals(expReturnStates, nfa.getNextStates(0,"b"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetNextStatesExceptionStates(){
+        acceptingStates.add(2);
+        int initialState = 1;
+        characters.add('a');
+
+        NFAImpl nfa = new NFAImpl(1, characters, acceptingStates, initialState);
+        nfa.getNextStates(1,"a");
+    }
+
+    @Test(expected = IllegalCharacterException.class)
+    public void testGetNextStatesExceptionChar(){
+        acceptingStates.add(2);
+        int initialState = 1;
+        characters.add('a');
+
+        NFAImpl nfa = new NFAImpl(1, characters, acceptingStates, initialState);
+        nfa.getNextStates(0,"b");
+    }
+
+    @Test
+    public void testAccepts(){
+        int initialState = 0;
+        acceptingStates.add(3);
+        acceptingStates.add(2);
+        characters.add('a');
+        characters.add('b');
+        characters.add('c');
+        NFAImpl nfa = new NFAImpl(4, characters, acceptingStates, initialState);
+        nfa.setTransition(0,"a",1);
+        nfa.setTransition(1,"b",2);
+        nfa.setTransition(2,"b",2);
+        nfa.setTransition(2,"c",3);
+
+        Assert.assertTrue(nfa.accepts("abb"));
+        Assert.assertTrue(nfa.accepts("abc"));
     }
 }
