@@ -4,6 +4,7 @@ import ab2.impl.GUNDACKER_KOPALI.FAFactory;
 import ab2.impl.GUNDACKER_KOPALI.NFA;
 import ab2.impl.GUNDACKER_KOPALI.RSA;
 import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -56,19 +57,31 @@ public class NFAImpl implements NFA {
 
     @Override
     public Set<String>[][] getTransitions() {
-        Set<String>[][] transSet = new Set[][];
-        Set<String> testSet = new HashSet<>();
-        testSet.add(Integer.toString(transitionList.get(0).getFromState()));
-        testSet.add(Integer.toString(transitionList.get(1).getFromState()));
+        Set<String>[][] transSet = new Set[states.size()][states.size()];
+        Set<String> tempSet = new HashSet<>();
 
+        String[] stringArray;
+        boolean[][] stateChecked = new boolean[states.size()][states.size()];
 
-        transSet[0][0] = testSet;
+        for (int i = 0; i < transitionList.size(); i++) {
+            if(stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] == false) {
+                tempSet.clear();
+                tempSet.add(transitionList.get(i).getS());
+                for (int j = i + 1; j < transitionList.size(); j++) {
+                    if (transitionList.get(i).getFromState() == transitionList.get(j).getFromState()) {
+                        if (transitionList.get(i).getToState() == transitionList.get(j).getToState()) {
+                            tempSet.add(transitionList.get(j).getS());
+                        }
+                    }
+                    System.out.println(tempSet.toString());
+                }
+                stringArray = tempSet.toArray(new String[tempSet.size()]);
 
-        System.out.println(Integer.toString(transitionList.get(0).getFromState()));
-
-
-
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+                transSet[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] = new HashSet<String>(Arrays.asList(stringArray));
+            }
+            stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] = true;
+        }
+        return transSet;
     }
 
     @Override
