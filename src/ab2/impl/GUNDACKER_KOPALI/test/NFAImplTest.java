@@ -116,4 +116,20 @@ public class NFAImplTest {
         Assert.assertTrue(nfa.accepts("abb"));
         Assert.assertTrue(nfa.accepts("abc"));
     }
+
+    @Test
+    public void acceptsNothingTest(){
+        int initialState = 0;
+        acceptingStates.add(3);
+        characters.add('a');
+        NFAImpl nfa = new NFAImpl(4, characters, acceptingStates, initialState);
+        nfa.setTransition(0,"a",1);
+        nfa.setTransition(1,"a",2);
+        nfa.setTransition(2,"a",2);
+        nfa.setTransition(3,"a",3);
+
+        Assert.assertTrue(nfa.acceptsNothing());
+    }
+
+
 }
