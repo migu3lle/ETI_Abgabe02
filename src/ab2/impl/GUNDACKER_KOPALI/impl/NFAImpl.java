@@ -132,6 +132,26 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA union(NFA a) {
+        NFAImpl unionNFA;
+
+        Set<Character> unionChars = new HashSet<>();
+        Set<Integer> unionAcceptingStates = new HashSet<>();
+        int unionInitialState = 0;
+        Set<Integer> unionStatesSet = new HashSet<>();
+        List<Transition> unionTransitionList = new ArrayList<>();
+
+        unionNFA = new NFAImpl(a.getNumStates()+this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
+
+        //Union characters
+        unionChars.addAll(a.getSymbols());
+        unionChars.addAll(this.getSymbols());
+        //Union accepting states
+        unionAcceptingStates.addAll(a.getAcceptingStates());
+        unionAcceptingStates.addAll(this.getAcceptingStates());
+
+        /*
+        NOT FULLY IMPLEMENTED YET
+         */
         throw new java.lang.UnsupportedOperationException("Not implemented yet.");
     }
 
@@ -147,6 +167,29 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA concat(NFA a) {
+        NFAImpl unionNFA;
+
+        Set<Character> unionChars = new HashSet<>();
+        Set<Integer> unionAcceptingStates = new HashSet<>();
+        int unionInitialState = this.getInitialState();
+        Set<Integer> unionStatesSet = new HashSet<>();
+        List<Transition> unionTransitionList = new ArrayList<>();
+
+        //Union characters
+        unionChars.addAll(a.getSymbols());
+        unionChars.addAll(this.getSymbols());
+        //Set accepting states to a's accepting states
+        unionAcceptingStates.addAll(a.getAcceptingStates());
+
+        unionNFA = new NFAImpl(a.getNumStates()+this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
+
+        Set<String>[][] transitionsA = a.getTransitions();
+
+        /*
+        NOT FULLY IMPLEMENTED YET
+         */
+        //.....unionTransitionList.add(new Transition())
+
         throw new java.lang.UnsupportedOperationException("Not implemented yet.");
     }
 
@@ -197,7 +240,13 @@ public class NFAImpl implements NFA {
 
     @Override
     public Boolean acceptsNothing() {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        boolean acceptsNothing = true;
+        for (int i = 0; i < transitionList.size() && acceptsNothing == false; i++) {
+                if(acceptingStates.contains(transitionList.get(i).getToState()) && !(transitionList.get(i).getFromState() == transitionList.get(i).getToState())){
+                    acceptsNothing = false;
+                }
+        }
+        return acceptsNothing;
     }
 
     @Override
