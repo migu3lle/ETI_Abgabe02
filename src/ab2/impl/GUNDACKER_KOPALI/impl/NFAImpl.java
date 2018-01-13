@@ -1,11 +1,8 @@
 package ab2.impl.GUNDACKER_KOPALI.impl;
 
-import ab2.impl.GUNDACKER_KOPALI.FAFactory;
 import ab2.impl.GUNDACKER_KOPALI.NFA;
 import ab2.impl.GUNDACKER_KOPALI.RSA;
 import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
@@ -14,17 +11,17 @@ public class NFAImpl implements NFA {
     private Set<Character> characters;
     private Set<Integer> acceptingStates;
     private int initialState;
-    private Set<Integer> states;
+    private Set<Integer> statesSet;
     private List<Transition> transitionList;
 
     //Constructor
     public NFAImpl(int numStates, Set<Character> characters, Set<Integer> acceptingStates, int initialState){
         this.characters = characters;           //Set characters of NFAImpl
-        states = new HashSet<Integer>();
-        for(int i = 0; i < numStates; i++) {    //Create states of NFAImpl
-            this.states.add(i);
+        statesSet = new HashSet<Integer>();
+        for(int i = 0; i < numStates; i++) {    //Create statesSet of NFAImpl
+            this.statesSet.add(i);
         }
-        this.acceptingStates = acceptingStates; //Set accepting states of NFAImpl
+        this.acceptingStates = acceptingStates; //Set accepting statesSet of NFAImpl
         this.initialState = initialState;       //Set initial state of NFAImpl
         this.transitionList = new ArrayList<>();
     }
@@ -45,7 +42,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public boolean isAcceptingState(int s) throws IllegalStateException {
-        if(!(states.contains(s))){
+        if(!(statesSet.contains(s))){
             throw new IllegalStateException("Zustand existiert nicht. (isAcceptingState)");
         }
         else if(acceptingStates.contains(s)){
@@ -57,11 +54,11 @@ public class NFAImpl implements NFA {
 
     @Override
     public Set<String>[][] getTransitions() {
-        Set<String>[][] transSet = new Set[states.size()][states.size()];
+        Set<String>[][] transSet = new Set[statesSet.size()][statesSet.size()];
         Set<String> tempSet = new HashSet<>();
 
         String[] stringArray;
-        boolean[][] stateChecked = new boolean[states.size()][states.size()];
+        boolean[][] stateChecked = new boolean[statesSet.size()][statesSet.size()];
 
         for (int i = 0; i < transitionList.size(); i++) {
             if(stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] == false) {
@@ -73,10 +70,8 @@ public class NFAImpl implements NFA {
                             tempSet.add(transitionList.get(j).getS());
                         }
                     }
-                    System.out.println(tempSet.toString());
                 }
                 stringArray = tempSet.toArray(new String[tempSet.size()]);
-
                 transSet[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] = new HashSet<String>(Arrays.asList(stringArray));
             }
             stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] = true;
@@ -86,7 +81,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public void setTransition(int fromState, String s, int toState) throws IllegalStateException, IllegalCharacterException {
-        if(!(states.contains(fromState)) || !(states.contains(toState))){
+        if(!(statesSet.contains(fromState)) || !(statesSet.contains(toState))){
             throw new IllegalStateException("Zustand existiert nicht. (setTransition)");
         }
         else{
@@ -112,12 +107,27 @@ public class NFAImpl implements NFA {
 
     @Override
     public Set<Integer> getNextStates(int state, String s) throws IllegalCharacterException, IllegalStateException {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        char inputChar = s.charAt(0);
+        if(!statesSet.contains(state)){
+            throw new IllegalStateException("Zustand existiert nicht. (getNextStates)");
+        }
+        else if(!characters.contains(inputChar)){
+            throw new IllegalCharacterException();
+        }
+        else {
+            Set<Integer> retSet = new HashSet<>();
+            for (int i = 0; i < transitionList.size(); i++) {
+                if (transitionList.get(i).getFromState() == state && transitionList.get(i).getS() == s) {
+                    retSet.add(transitionList.get(i).getToState());
+                }
+            }
+            return retSet;
+        }
     }
 
     @Override
     public int getNumStates() {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        return statesSet.size();
     }
 
     @Override
@@ -162,7 +172,27 @@ public class NFAImpl implements NFA {
 
     @Override
     public Boolean accepts(String w) throws IllegalCharacterException {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        boolean accepts = false;
+        int state = initialState;
+        boolean transactionFound;
+
+        for (int i = 0; i < w.length(); i++) {
+            transactionFound = false;
+            for (int j = 0; j < transitionList.size() && transactionFound == false; j++) {
+                if(transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals(Character.toString(w.charAt(i)))){
+                    state = transitionList.get(i).getToState();
+                    System.out.println(state);
+                    transactionFound = true;
+                }
+            }
+            if(transactionFound == false){
+                return accepts;
+            }
+        }
+        if(acceptingStates.contains(state)){
+            accepts = true;
+        }
+        return accepts;
     }
 
     @Override
