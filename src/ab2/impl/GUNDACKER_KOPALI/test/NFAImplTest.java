@@ -4,6 +4,7 @@ import ab2.impl.GUNDACKER_KOPALI.NFA;
 import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
 import ab2.impl.GUNDACKER_KOPALI.impl.NFAImpl;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Set;
 public class NFAImplTest {
     public static final Set<Integer> acceptingStates = new HashSet<>();
     public static final Set<Character> characters = new HashSet<>();
+
 
     @Test
     public void testConstructorAndGetter() {
@@ -176,6 +178,52 @@ public class NFAImplTest {
         }
         //Check acceptsEpsilon() Method (using accepts() method)
         Assert.assertTrue(nfaConcat.acceptsEpsilon());
+    }
+
+    @Test
+    public void unionTest(){
+        //NFA 1
+        acceptingStates.add(1);
+        characters.add('a');
+        NFAImpl nfa1 = new NFAImpl(2, characters, acceptingStates, 0);
+        nfa1.setTransition(0, "a", 1);
+
+        //NFA 2
+        Set<Integer> acceptingStatesNFA2 = new HashSet<>();
+        Set<Character> charactersNFA2 = new HashSet<>();
+        acceptingStatesNFA2.add(1);
+        charactersNFA2.add('b');
+        NFAImpl nfa2 = new NFAImpl(2, charactersNFA2, acceptingStatesNFA2, 0);
+        nfa2.setTransition(0, "b", 1);
+
+        NFA nfaUnion = nfa1.union(nfa2);
+        Set<Character> checkCharsSet = new HashSet<>();
+        checkCharsSet.add('a');
+        checkCharsSet.add('b');
+        Set<Integer> checkAcceptingStatesSet = new HashSet<>();
+        checkAcceptingStatesSet.add(2);
+        checkAcceptingStatesSet.add(4);
+
+        //Now check UNION NFA for specifications
+        Assert.assertEquals(5, nfaUnion.getNumStates());
+        Assert.assertEquals(checkCharsSet, nfaUnion.getSymbols());
+        Assert.assertEquals(checkAcceptingStatesSet, nfaUnion.getAcceptingStates());
+        Assert.assertEquals(0, nfaUnion.getInitialState());
+
+        //Print transitions list to check
+        Set<String>[][] unionTransitions = nfaUnion.getTransitions();
+        System.out.println("Union Transitions: ");
+        for (int i = 0; i < unionTransitions.length; i++) {
+            for (int j = 0; j < unionTransitions[i].length; j++) {
+                if (unionTransitions[i][j] != null) {
+                    System.out.println(i + " -> " + j + " : " + unionTransitions[i][j]);
+                }
+            }
+        }
+
+        Assert.assertFalse(nfaUnion.acceptsEpsilon());
+        Assert.assertFalse(nfaUnion.accepts("ab"));
+        Assert.assertFalse(nfaUnion.accepts(""));
     }
 
 
