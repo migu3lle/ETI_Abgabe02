@@ -203,7 +203,7 @@ public class NFAImpl implements NFA {
 
         //Epsilon Übergang für Concat, von Endzuständen von THIS NFA zu a.NFA
         for (int i : this.getAcceptingStates()) {
-            concatNFA.setTransition(i, "", a.getInitialState());
+            concatNFA.setTransition(i, "", a.getInitialState()+this.getNumStates());
         }
 
         return concatNFA;
@@ -236,6 +236,8 @@ public class NFAImpl implements NFA {
         boolean transactionFound = false;
         boolean epsilonFound = true;
 
+        System.out.println(w.length());
+
         for (int i = 0; i < w.length() || epsilonFound == true; i++) {
             transactionFound = false;
             //Prüfe ob Wortende erreicht, sonst suche weiter nach Übergängen
@@ -253,13 +255,18 @@ public class NFAImpl implements NFA {
                     return accepts;
                 }
             } else
-            //Wenn Wort zu Ende, prüfe für weitere Epsilon Übergänge
+            //Wenn Wort zu Ende oder leeres Wort als Eingabe, prüfe für weitere Epsilon Übergänge
             {
                 while (epsilonFound) {
                     for (int j = 0; j < transitionList.size(); j++) {
                         if (transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals("")) {
                             state = transitionList.get(j).getToState();
                             System.out.println(state);
+                            //State changed, now set j=0 to iterate from 0 within transitionList again
+                            j = 0;
+                            if(acceptingStates.contains(state)){
+                                return true;
+                            }
                         }
                         else
                             //Wenn kein Epsilon Übergang gefunden, beende weitere Suche
@@ -292,7 +299,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public Boolean acceptsEpsilon() {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        return this.accepts("");
     }
 
     @Override
