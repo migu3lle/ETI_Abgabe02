@@ -247,7 +247,6 @@ public class NFAImpl implements NFA {
                             //Prüfe auch auf mögliche Epsilon Übergänge
                             transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals("")) {
                         state = transitionList.get(j).getToState();
-                        System.out.println(state);
                         transactionFound = true;
                     }
                 }
@@ -261,10 +260,10 @@ public class NFAImpl implements NFA {
                     for (int j = 0; j < transitionList.size(); j++) {
                         if (transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals("")) {
                             state = transitionList.get(j).getToState();
-                            System.out.println(state);
                             //State changed, now set j=0 to iterate from 0 within transitionList again
                             j = 0;
                             if(acceptingStates.contains(state)){
+                                //Sobald ein Endzustand erreicht, kann man beenden da leeres Wort
                                 return true;
                             }
                         }

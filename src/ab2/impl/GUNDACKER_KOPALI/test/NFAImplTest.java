@@ -134,12 +134,13 @@ public class NFAImplTest {
     }
 
     @Test
-    public void unionTest() {
+    public void concatTest() {
         //NFA 1
         acceptingStates.add(1);
         characters.add('a');
         NFAImpl nfa1 = new NFAImpl(2, characters, acceptingStates, 0);
         nfa1.setTransition(0, "a", 1);
+        nfa1.setTransition(0, "", 1);
 
         //NFA 2
         Set<Integer> acceptingStatesNFA2 = new HashSet<>();
@@ -148,22 +149,23 @@ public class NFAImplTest {
         charactersNFA2.add('b');
         NFAImpl nfa2 = new NFAImpl(2, charactersNFA2, acceptingStatesNFA2, 0);
         nfa2.setTransition(0, "b", 1);
+        nfa2.setTransition(0, "", 1);
 
-
-        NFA nfaUnion = nfa1.concat(nfa2);
+        NFA nfaConcat = nfa1.concat(nfa2);
         Set<Character> checkCharsSet = new HashSet<>();
         checkCharsSet.add('a');
         checkCharsSet.add('b');
         Set<Integer> checkAcceptingStatesSet = new HashSet<>();
         checkAcceptingStatesSet.add(3);
 
-        //Now check UNION NFA for specifications
-        Assert.assertEquals(4, nfaUnion.getNumStates());
-        Assert.assertEquals(checkCharsSet, nfaUnion.getSymbols());
-        Assert.assertEquals(checkAcceptingStatesSet, nfaUnion.getAcceptingStates());
-        Assert.assertEquals(0, nfaUnion.getInitialState());
+        //Now check CONCAT NFA for specifications
+        Assert.assertEquals(4, nfaConcat.getNumStates());
+        Assert.assertEquals(checkCharsSet, nfaConcat.getSymbols());
+        Assert.assertEquals(checkAcceptingStatesSet, nfaConcat.getAcceptingStates());
+        Assert.assertEquals(0, nfaConcat.getInitialState());
 
-        Set<String>[][] concatTransitions = nfaUnion.getTransitions();
+        //Print transitions list to check
+        Set<String>[][] concatTransitions = nfaConcat.getTransitions();
         System.out.println("Concat Transitions: ");
         for (int i = 0; i < concatTransitions.length; i++) {
             for (int j = 0; j < concatTransitions[i].length; j++) {
@@ -172,9 +174,10 @@ public class NFAImplTest {
                 }
             }
         }
-
-
+        //Check acceptsEpsilon() Method (using accepts() method)
+        Assert.assertTrue(nfaConcat.acceptsEpsilon());
     }
+
 
 
 }
