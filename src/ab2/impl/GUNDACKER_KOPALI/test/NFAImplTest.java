@@ -1,5 +1,6 @@
 package ab2.impl.GUNDACKER_KOPALI.test;
 
+import ab2.impl.GUNDACKER_KOPALI.NFA;
 import ab2.impl.GUNDACKER_KOPALI.fa.exceptions.IllegalCharacterException;
 import ab2.impl.GUNDACKER_KOPALI.impl.NFAImpl;
 import org.junit.Assert;
@@ -24,12 +25,12 @@ public class NFAImplTest {
 
         Assert.assertEquals(characters, nfa.getSymbols());
         Assert.assertEquals(acceptingStates, nfa.getAcceptingStates());
-        Assert.assertEquals(1,nfa.getInitialState());
-        Assert.assertEquals(true,nfa.isAcceptingState(2));
+        Assert.assertEquals(1, nfa.getInitialState());
+        Assert.assertEquals(true, nfa.isAcceptingState(2));
     }
 
     @Test
-    public void testTransitions(){
+    public void testTransitions() {
         acceptingStates.add(2);
         int initialState = 1;
         characters.add('a');
@@ -37,15 +38,15 @@ public class NFAImplTest {
         characters.add('c');
         characters.add('d');
         NFAImpl nfa = new NFAImpl(3, characters, acceptingStates, initialState);
-        nfa.setTransition(0,"a",1);
-        nfa.setTransition(1,"b",0);
-        nfa.setTransition(0,"b",1);
-        nfa.setTransition(0,"c",1);
-        nfa.setTransition(0,"d",1);
-        nfa.setTransition(1,"d",2);
-        nfa.setTransition(1,"a",2);
-        nfa.setTransition(2,"b",0);
-        nfa.setTransition(2,"c",0);
+        nfa.setTransition(0, "a", 1);
+        nfa.setTransition(1, "b", 0);
+        nfa.setTransition(0, "b", 1);
+        nfa.setTransition(0, "c", 1);
+        nfa.setTransition(0, "d", 1);
+        nfa.setTransition(1, "d", 2);
+        nfa.setTransition(1, "a", 2);
+        nfa.setTransition(2, "b", 0);
+        nfa.setTransition(2, "c", 0);
 
         Set<String>[][] returnSet = nfa.getTransitions();
 
@@ -53,7 +54,7 @@ public class NFAImplTest {
     }
 
     @Test
-    public void testGetNextStates(){
+    public void testGetNextStates() {
         Set<Integer> expReturnStates = new HashSet<>();
         acceptingStates.add(2);
         int initialState = 1;
@@ -62,73 +63,117 @@ public class NFAImplTest {
         characters.add('c');
         characters.add('d');
         NFAImpl nfa = new NFAImpl(3, characters, acceptingStates, initialState);
-        nfa.setTransition(0,"a",1);
-        nfa.setTransition(1,"b",0);
-        nfa.setTransition(0,"b",1);
-        nfa.setTransition(0,"c",1);
-        nfa.setTransition(0,"d",1);
-        nfa.setTransition(0,"b",2);
-        nfa.setTransition(1,"d",2);
-        nfa.setTransition(1,"a",2);
-        nfa.setTransition(2,"b",0);
-        nfa.setTransition(2,"c",0);
+        nfa.setTransition(0, "a", 1);
+        nfa.setTransition(1, "b", 0);
+        nfa.setTransition(0, "b", 1);
+        nfa.setTransition(0, "c", 1);
+        nfa.setTransition(0, "d", 1);
+        nfa.setTransition(0, "b", 2);
+        nfa.setTransition(1, "d", 2);
+        nfa.setTransition(1, "a", 2);
+        nfa.setTransition(2, "b", 0);
+        nfa.setTransition(2, "c", 0);
 
         expReturnStates.add(1);
         expReturnStates.add(2);
 
-        Assert.assertEquals(expReturnStates, nfa.getNextStates(0,"b"));
+        Assert.assertEquals(expReturnStates, nfa.getNextStates(0, "b"));
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testGetNextStatesExceptionStates(){
+    public void testGetNextStatesExceptionStates() {
         acceptingStates.add(2);
         int initialState = 1;
         characters.add('a');
 
         NFAImpl nfa = new NFAImpl(1, characters, acceptingStates, initialState);
-        nfa.getNextStates(1,"a");
+        nfa.getNextStates(1, "a");
     }
 
     @Test(expected = IllegalCharacterException.class)
-    public void testGetNextStatesExceptionChar(){
+    public void testGetNextStatesExceptionChar() {
         acceptingStates.add(2);
         int initialState = 1;
         characters.add('a');
 
         NFAImpl nfa = new NFAImpl(1, characters, acceptingStates, initialState);
-        nfa.getNextStates(0,"b");
+        nfa.getNextStates(0, "b");
     }
 
     @Test
-    public void testAccepts(){
+    public void testAccepts() {
         int initialState = 0;
         acceptingStates.add(3);
-        acceptingStates.add(2);
         characters.add('a');
         characters.add('b');
         characters.add('c');
         NFAImpl nfa = new NFAImpl(4, characters, acceptingStates, initialState);
-        nfa.setTransition(0,"a",1);
-        nfa.setTransition(1,"b",2);
-        nfa.setTransition(2,"b",2);
-        nfa.setTransition(2,"c",3);
+        nfa.setTransition(0, "a", 1);
+        nfa.setTransition(1, "b", 2);
+        nfa.setTransition(2, "b", 2);
+        nfa.setTransition(2, "c", 3);
+        nfa.setTransition(2, "", 3);
 
         Assert.assertTrue(nfa.accepts("abb"));
         Assert.assertTrue(nfa.accepts("abc"));
+        Assert.assertTrue(nfa.accepts("ab"));
     }
 
     @Test
-    public void acceptsNothingTest(){
+    public void acceptsNothingTest() {
         int initialState = 0;
         acceptingStates.add(3);
         characters.add('a');
         NFAImpl nfa = new NFAImpl(4, characters, acceptingStates, initialState);
-        nfa.setTransition(0,"a",1);
-        nfa.setTransition(1,"a",2);
-        nfa.setTransition(2,"a",2);
-        nfa.setTransition(3,"a",3);
+        nfa.setTransition(0, "a", 1);
+        nfa.setTransition(1, "a", 2);
+        nfa.setTransition(2, "a", 2);
+        nfa.setTransition(3, "a", 3);
 
         Assert.assertTrue(nfa.acceptsNothing());
+    }
+
+    @Test
+    public void unionTest() {
+        //NFA 1
+        acceptingStates.add(1);
+        characters.add('a');
+        NFAImpl nfa1 = new NFAImpl(2, characters, acceptingStates, 0);
+        nfa1.setTransition(0, "a", 1);
+
+        //NFA 2
+        Set<Integer> acceptingStatesNFA2 = new HashSet<>();
+        Set<Character> charactersNFA2 = new HashSet<>();
+        acceptingStatesNFA2.add(1);
+        charactersNFA2.add('b');
+        NFAImpl nfa2 = new NFAImpl(2, charactersNFA2, acceptingStatesNFA2, 0);
+        nfa2.setTransition(0, "b", 1);
+
+
+        NFA nfaUnion = nfa1.concat(nfa2);
+        Set<Character> checkCharsSet = new HashSet<>();
+        checkCharsSet.add('a');
+        checkCharsSet.add('b');
+        Set<Integer> checkAcceptingStatesSet = new HashSet<>();
+        checkAcceptingStatesSet.add(3);
+
+        //Now check UNION NFA for specifications
+        Assert.assertEquals(4, nfaUnion.getNumStates());
+        Assert.assertEquals(checkCharsSet, nfaUnion.getSymbols());
+        Assert.assertEquals(checkAcceptingStatesSet, nfaUnion.getAcceptingStates());
+        Assert.assertEquals(0, nfaUnion.getInitialState());
+
+        Set<String>[][] concatTransitions = nfaUnion.getTransitions();
+        System.out.println("Concat Transitions: ");
+        for (int i = 0; i < concatTransitions.length; i++) {
+            for (int j = 0; j < concatTransitions[i].length; j++) {
+                if (concatTransitions[i][j] != null) {
+                    System.out.println(i + " -> " + j + " : " + concatTransitions[i][j]);
+                }
+            }
+        }
+
+
     }
 
 
