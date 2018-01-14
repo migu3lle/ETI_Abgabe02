@@ -135,23 +135,48 @@ public class NFAImpl implements NFA {
         Set<Integer> unionStatesSet = new HashSet<>();
         List<Transition> unionTransitionList = new ArrayList<>();
 
-        unionNFA = new NFAImpl(a.getNumStates() + this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
-
         //Union characters
         unionChars.addAll(a.getSymbols());
         unionChars.addAll(this.getSymbols());
-        //Union accepting states
-        unionAcceptingStates.addAll(a.getAcceptingStates());
-        unionAcceptingStates.addAll(this.getAcceptingStates());
+        //Add THIS's accepting states to Union's accepting states
+        for (int i : this.getAcceptingStates()) {
+            unionAcceptingStates.add(i + 1);
+        }
+        //Add a's accepting states to Union's accepting states
+        for (int i : a.getAcceptingStates()) {
+            unionAcceptingStates.add(i + this.getNumStates() + 1);
+        }
 
-        /*
-        NOT FULLY IMPLEMENTED YET
-         */
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        unionNFA = new NFAImpl(a.getNumStates() + this.getNumStates() + 1, unionChars, unionAcceptingStates, unionInitialState);
+
+        //Adding transitions of THIS NFA to Union NFA, considering additional initialState (+1)
+        for (int i = 0; i < this.transitionList.size(); i++) {
+            unionNFA.setTransition(this.transitionList.get(i).getFromState() + 1, this.transitionList.get(i).getS(),this.transitionList.get(i).getToState() + 1);
+        }
+
+        //Adding transitions of A.NFA to Union NFA, considering additional initialState (+1)
+        Set<String>[][] transitionsA = a.getTransitions();
+        for (int i = 0; i < transitionsA.length; i++) {
+            for (int j = 0; j < transitionsA[i].length; j++) {
+                if (transitionsA[i][j] != null) {
+                    //Adding transitions
+                    for (String s : transitionsA[i][j]) {
+                        unionNFA.setTransition(i + this.getNumStates() + 1, s, j + this.getNumStates() + 1);
+                    }
+                }
+            }
+        }
+
+        //Epsilon Übergang für Union, von neuem Startzustand zu THIS.NFA-Startzustand und A.NFA-Startzustand
+        unionNFA.setTransition(0, "", this.getInitialState() + 1);
+        unionNFA.setTransition(0, "", a.getInitialState() + this.getNumStates() + 1);
+
+        return unionNFA;
     }
 
     @Override
     public NFA intersection(NFA a) {
+
         throw new java.lang.UnsupportedOperationException("Not implemented yet.");
     }
 
@@ -167,8 +192,6 @@ public class NFAImpl implements NFA {
         Set<Character> concatChars = new HashSet<>();
         Set<Integer> concatAcceptingStates = new HashSet<>();
         int concatInitialState = this.getInitialState();
-        Set<Integer> concatStatesSet = new HashSet<>();
-        List<Transition> concatTransitionList = new ArrayList<>();
 
         //Concat's characters
         concatChars.addAll(a.getSymbols());
@@ -189,12 +212,8 @@ public class NFAImpl implements NFA {
         for (int i = 0; i < transitionsA.length; i++) {
             for (int j = 0; j < transitionsA[i].length; j++) {
                 if (transitionsA[i][j] != null) {
-                    //Adding states
-                    concatStatesSet.add(i + this.getNumStates());
-                    concatStatesSet.add(j + this.getNumStates());
                     //Adding transitions
                     for (String s : transitionsA[i][j]) {
-                        //concatTransitionList.add(new Transition(i + this.getNumStates(), s, j + this.getNumStates()));
                         concatNFA.setTransition(i + this.getNumStates(), s, j + this.getNumStates());
                     }
                 }
@@ -235,8 +254,6 @@ public class NFAImpl implements NFA {
         int state = initialState;
         boolean transactionFound = false;
         boolean epsilonFound = true;
-
-        System.out.println(w.length());
 
         for (int i = 0; i < w.length() || epsilonFound == true; i++) {
             transactionFound = false;
