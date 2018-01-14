@@ -15,10 +15,10 @@ public class NFAImpl implements NFA {
     private List<Transition> transitionList;
 
     //Constructor
-    public NFAImpl(int numStates, Set<Character> characters, Set<Integer> acceptingStates, int initialState){
+    public NFAImpl(int numStates, Set<Character> characters, Set<Integer> acceptingStates, int initialState) {
         this.characters = characters;           //Set characters of NFAImpl
         statesSet = new HashSet<Integer>();
-        for(int i = 0; i < numStates; i++) {    //Create statesSet of NFAImpl
+        for (int i = 0; i < numStates; i++) {    //Create statesSet of NFAImpl
             this.statesSet.add(i);
         }
         this.acceptingStates = acceptingStates; //Set accepting statesSet of NFAImpl
@@ -26,7 +26,7 @@ public class NFAImpl implements NFA {
         this.transitionList = new ArrayList<>();
     }
 
-    public Set<Character> getSymbols(){
+    public Set<Character> getSymbols() {
         return characters;
     }
 
@@ -42,13 +42,11 @@ public class NFAImpl implements NFA {
 
     @Override
     public boolean isAcceptingState(int s) throws IllegalStateException {
-        if(!(statesSet.contains(s))){
+        if (!(statesSet.contains(s))) {
             throw new IllegalStateException("Zustand existiert nicht. (isAcceptingState)");
-        }
-        else if(acceptingStates.contains(s)){
+        } else if (acceptingStates.contains(s)) {
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -61,7 +59,7 @@ public class NFAImpl implements NFA {
         boolean[][] stateChecked = new boolean[statesSet.size()][statesSet.size()];
 
         for (int i = 0; i < transitionList.size(); i++) {
-            if(stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] == false) {
+            if (stateChecked[transitionList.get(i).getFromState()][transitionList.get(i).getToState()] == false) {
                 tempSet.clear();
                 tempSet.add(transitionList.get(i).getS());
                 for (int j = i + 1; j < transitionList.size(); j++) {
@@ -81,12 +79,11 @@ public class NFAImpl implements NFA {
 
     @Override
     public void setTransition(int fromState, String s, int toState) throws IllegalStateException, IllegalCharacterException {
-        if(!(statesSet.contains(fromState)) || !(statesSet.contains(toState))){
+        if (!(statesSet.contains(fromState)) || !(statesSet.contains(toState))) {
             throw new IllegalStateException("Zustand existiert nicht. (setTransition)");
-        }
-        else{
-            for(char c : s.toCharArray()){
-                if(!characters.contains(c)){
+        } else {
+            for (char c : s.toCharArray()) {
+                if (!characters.contains(c)) {
                     throw new IllegalCharacterException();
                 }
             }
@@ -97,9 +94,9 @@ public class NFAImpl implements NFA {
     @Override
     public void clearTransitions(int fromState, String s) throws IllegalStateException {
         Iterator<Transition> it = transitionList.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Transition trans = it.next();
-            if(trans.getFromState() == fromState && trans.getS() == s){
+            if (trans.getFromState() == fromState && trans.getS() == s) {
                 it.remove();
             }
         }
@@ -108,13 +105,11 @@ public class NFAImpl implements NFA {
     @Override
     public Set<Integer> getNextStates(int state, String s) throws IllegalCharacterException, IllegalStateException {
         char inputChar = s.charAt(0);
-        if(!statesSet.contains(state)){
+        if (!statesSet.contains(state)) {
             throw new IllegalStateException("Zustand existiert nicht. (getNextStates)");
-        }
-        else if(!characters.contains(inputChar)){
+        } else if (!characters.contains(inputChar)) {
             throw new IllegalCharacterException();
-        }
-        else {
+        } else {
             Set<Integer> retSet = new HashSet<>();
             for (int i = 0; i < transitionList.size(); i++) {
                 if (transitionList.get(i).getFromState() == state && transitionList.get(i).getS() == s) {
@@ -140,7 +135,7 @@ public class NFAImpl implements NFA {
         Set<Integer> unionStatesSet = new HashSet<>();
         List<Transition> unionTransitionList = new ArrayList<>();
 
-        unionNFA = new NFAImpl(a.getNumStates()+this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
+        unionNFA = new NFAImpl(a.getNumStates() + this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
 
         //Union characters
         unionChars.addAll(a.getSymbols());
@@ -167,30 +162,51 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA concat(NFA a) {
-        NFAImpl unionNFA;
+        NFAImpl concatNFA;
 
-        Set<Character> unionChars = new HashSet<>();
-        Set<Integer> unionAcceptingStates = new HashSet<>();
-        int unionInitialState = this.getInitialState();
-        Set<Integer> unionStatesSet = new HashSet<>();
-        List<Transition> unionTransitionList = new ArrayList<>();
+        Set<Character> concatChars = new HashSet<>();
+        Set<Integer> concatAcceptingStates = new HashSet<>();
+        int concatInitialState = this.getInitialState();
+        Set<Integer> concatStatesSet = new HashSet<>();
+        List<Transition> concatTransitionList = new ArrayList<>();
 
-        //Union characters
-        unionChars.addAll(a.getSymbols());
-        unionChars.addAll(this.getSymbols());
-        //Set accepting states to a's accepting states
-        unionAcceptingStates.addAll(a.getAcceptingStates());
+        //Concat's characters
+        concatChars.addAll(a.getSymbols());
+        concatChars.addAll(this.getSymbols());
+        //Set accepting states to a's accepting states (increased by number of THIS states
+        for (int i : a.getAcceptingStates()) {
+            concatAcceptingStates.add(i+this.getNumStates());
+        }
 
-        unionNFA = new NFAImpl(a.getNumStates()+this.getNumStates(), unionChars, unionAcceptingStates, unionInitialState);
+        concatNFA = new NFAImpl(a.getNumStates() + this.getNumStates(), concatChars, concatAcceptingStates, concatInitialState);
+
+        //Adding transitions of THIS NFA to Concat NFA
+        for (int i = 0; i < this.transitionList.size(); i++) {
+            concatNFA.setTransition(this.transitionList.get(i).getFromState(), this.transitionList.get(i).getS(),this.transitionList.get(i).getToState());
+        }
 
         Set<String>[][] transitionsA = a.getTransitions();
+        for (int i = 0; i < transitionsA.length; i++) {
+            for (int j = 0; j < transitionsA[i].length; j++) {
+                if (transitionsA[i][j] != null) {
+                    //Adding states
+                    concatStatesSet.add(i + this.getNumStates());
+                    concatStatesSet.add(j + this.getNumStates());
+                    //Adding transitions
+                    for (String s : transitionsA[i][j]) {
+                        //concatTransitionList.add(new Transition(i + this.getNumStates(), s, j + this.getNumStates()));
+                        concatNFA.setTransition(i + this.getNumStates(), s, j + this.getNumStates());
+                    }
+                }
+            }
+        }
 
-        /*
-        NOT FULLY IMPLEMENTED YET
-         */
-        //.....unionTransitionList.add(new Transition())
+        //Epsilon Übergang für Concat, von Endzuständen von THIS NFA zu a.NFA
+        for (int i : this.getAcceptingStates()) {
+            concatNFA.setTransition(i, "", a.getInitialState());
+        }
 
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        return concatNFA;
     }
 
     @Override
@@ -217,22 +233,42 @@ public class NFAImpl implements NFA {
     public Boolean accepts(String w) throws IllegalCharacterException {
         boolean accepts = false;
         int state = initialState;
-        boolean transactionFound;
+        boolean transactionFound = false;
+        boolean epsilonFound = true;
 
-        for (int i = 0; i < w.length(); i++) {
+        for (int i = 0; i < w.length() || epsilonFound == true; i++) {
             transactionFound = false;
-            for (int j = 0; j < transitionList.size() && transactionFound == false; j++) {
-                if(transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals(Character.toString(w.charAt(i)))){
-                    state = transitionList.get(i).getToState();
-                    System.out.println(state);
-                    transactionFound = true;
+            //Prüfe ob Wortende erreicht, sonst suche weiter nach Übergängen
+            if (!(i == w.length())) {
+                for (int j = 0; j < transitionList.size() && transactionFound == false; j++) {
+                    if (transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals(Character.toString(w.charAt(i))) ||
+                            //Prüfe auch auf mögliche Epsilon Übergänge
+                            transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals("")) {
+                        state = transitionList.get(j).getToState();
+                        System.out.println(state);
+                        transactionFound = true;
+                    }
+                }
+                if (transactionFound == false) {
+                    return accepts;
+                }
+            } else
+            //Wenn Wort zu Ende, prüfe für weitere Epsilon Übergänge
+            {
+                while (epsilonFound) {
+                    for (int j = 0; j < transitionList.size(); j++) {
+                        if (transitionList.get(j).getFromState() == state && transitionList.get(j).getS().equals("")) {
+                            state = transitionList.get(j).getToState();
+                            System.out.println(state);
+                        }
+                        else
+                            //Wenn kein Epsilon Übergang gefunden, beende weitere Suche
+                            epsilonFound = false;
+                    }
                 }
             }
-            if(transactionFound == false){
-                return accepts;
-            }
         }
-        if(acceptingStates.contains(state)){
+        if (acceptingStates.contains(state)) {
             accepts = true;
         }
         return accepts;
@@ -242,9 +278,9 @@ public class NFAImpl implements NFA {
     public Boolean acceptsNothing() {
         boolean acceptsNothing = true;
         for (int i = 0; i < transitionList.size() && acceptsNothing == false; i++) {
-                if(acceptingStates.contains(transitionList.get(i).getToState()) && !(transitionList.get(i).getFromState() == transitionList.get(i).getToState())){
-                    acceptsNothing = false;
-                }
+            if (acceptingStates.contains(transitionList.get(i).getToState()) && !(transitionList.get(i).getFromState() == transitionList.get(i).getToState())) {
+                acceptsNothing = false;
+            }
         }
         return acceptsNothing;
     }
