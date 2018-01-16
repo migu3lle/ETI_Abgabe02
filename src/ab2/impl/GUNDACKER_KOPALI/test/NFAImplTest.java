@@ -226,6 +226,24 @@ public class NFAImplTest {
         Assert.assertFalse(nfaUnion.accepts(""));
     }
 
+    @Test
+    public void complementTest(){
+        acceptingStates.add(1);
+        characters.add('a');
+        NFAImpl nfa1 = new NFAImpl(4, characters, acceptingStates, 0);
+        //Get new Complement NFA of NFA1
+        NFA newNFA = nfa1.complement();
+
+        Set<Integer> checkAcceptingStates = new HashSet<>();
+        checkAcceptingStates.add(0);
+        checkAcceptingStates.add(2);
+        checkAcceptingStates.add(3);
+
+        Assert.assertEquals(checkAcceptingStates, newNFA.getAcceptingStates());
+        Assert.assertEquals(0, newNFA.getInitialState());
+        Assert.assertEquals(4, newNFA.getNumStates());
+    }
+
 
 
 }

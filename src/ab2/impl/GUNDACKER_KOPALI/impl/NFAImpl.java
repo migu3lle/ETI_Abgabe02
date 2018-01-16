@@ -182,7 +182,19 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA complement() {
-        throw new java.lang.UnsupportedOperationException("Not implemented yet.");
+        NFAImpl complementNFA;
+        Set<Integer> complementAcceptingStates = new HashSet<>();
+
+        //Tausche Endzustände mit Nicht-Endzuständen
+        for (Integer i : this.statesSet){
+            if(this.acceptingStates.contains(i)){
+                this.acceptingStates.remove(i);
+            }
+            else
+                this.acceptingStates.add(i);
+        }
+        complementNFA = new NFAImpl(this.getNumStates(),this.getSymbols(), this.acceptingStates, this.initialState);
+        return complementNFA;
     }
 
     @Override
