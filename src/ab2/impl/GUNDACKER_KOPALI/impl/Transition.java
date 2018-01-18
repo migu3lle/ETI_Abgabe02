@@ -20,4 +20,10 @@ public class Transition {
     public int getToState(){
         return toState;
     }
+    public void setFromState(int state){
+        this.fromState = state;
+    }
+    public void setToState(int state){
+        this.toState = state;
+    }
 }
