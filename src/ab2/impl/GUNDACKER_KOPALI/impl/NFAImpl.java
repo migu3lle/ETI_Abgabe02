@@ -242,6 +242,39 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA kleeneStar() {
+        NFAImpl kleeneNFA;
+
+        Set<Integer> kleeneAcceptingStates = new HashSet<>();
+        int kleeneInitialState = 0;
+        Set<Integer> kleeneStatesSet = new HashSet<>();
+        List<Transition> kleeneTransitionList = new ArrayList<>();
+
+        //Füge neuen Startzustand hinzu
+        this.statesSet.add(-1);
+
+        //Erhöhe alle Zustände um 1 (wegen neuem Startzustand)
+        for (int i : this.statesSet) {
+            i++;
+        }
+
+        //Passe alle Zustände in den Transitionen an (+1)
+        for (Transition t : transitionList) {
+            t.setFromState(t.getFromState()+1);
+            t.setToState(t.getToState()+1);
+        }
+
+        //Ergänze Transitionen mit Epsilon-Übergang von Endzuständen zu altem Startzustand
+        for (int t : acceptingStates) {
+            transitionList.add(new Transition(t+1, "", this.getInitialState()+1));
+        }
+
+        //Setze Endzustände neu (+1) und ergänze um neuen Startzustand
+        /*
+        todo
+         */
+
+        //kleeneNFA = new NFAImpl(this.getNumStates() + 1, this.getSymbols(), );
+
         throw new java.lang.UnsupportedOperationException("Not implemented yet.");
     }
 
@@ -263,6 +296,9 @@ public class NFAImpl implements NFA {
     @Override
     public Boolean accepts(String w) throws IllegalCharacterException {
         boolean accepts = false;
+        if(acceptingStates.isEmpty()){
+            return false;
+        }
         int state = initialState;
         boolean transactionFound = false;
         boolean epsilonFound = true;
